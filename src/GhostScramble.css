@@ -368,4 +368,40 @@
   .content-header h2 {
     font-size: 1.5rem;
   }
+  
+  .main-textarea {
+    height: 200px;
+  }
+  
+  .container {
+    padding: 16px;
+  }
+  
+  /* Mobile-friendly prompt buttons */
+  .prompt-btn {
+    padding: 16px 12px;
+  }
+  
+  .prompt-text .german {
+    font-size: 1rem;
+  }
+  
+  .prompt-text .english {
+    font-size: 0.875rem;
+  }
+  
+  /* Stack session actions vertically on mobile */
+  .session-actions {
+    flex-direction: column;
+  }
+  
+  /* Better touch targets */
+  .action-btn {
+    min-height: 44px;
+  }
+  
+  .shuffle-btn {
+    min-width: 44px;
+    min-height: 44px;
+  }
 }

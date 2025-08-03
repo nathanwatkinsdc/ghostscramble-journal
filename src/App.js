@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Save, Download, Shuffle, BookOpen, PenTool, Heart } from 'lucide-react';
+import { Save, Download, Shuffle, BookOpen, PenTool, Heart, Trash2, FileText, Plus } from 'lucide-react';
 import './GhostScramble.css';
 
 const GhostScrambleApp = () => {
@@ -9,6 +9,26 @@ const GhostScrambleApp = () => {
   const [savedSessions, setSavedSessions] = useState([]);
   const [sessionTitle, setSessionTitle] = useState('');
   const [isReflectionMode, setIsReflectionMode] = useState(false);
+
+  // Load saved sessions from localStorage on app start
+  useEffect(() => {
+    const savedData = localStorage.getItem('ghostScrambleSessions');
+    if (savedData) {
+      try {
+        const sessions = JSON.parse(savedData);
+        setSavedSessions(sessions);
+      } catch (error) {
+        console.error('Error loading saved sessions:', error);
+      }
+    }
+  }, []);
+
+  // Save sessions to localStorage whenever savedSessions changes
+  useEffect(() => {
+    if (savedSessions.length > 0) {
+      localStorage.setItem('ghostScrambleSessions', JSON.stringify(savedSessions));
+    }
+  }, [savedSessions]);
 
   const prompts = [
     { key: 'G', german: 'Gedanke', english: 'Thought', placeholder: 'What thought keeps returning to you today?' },
@@ -55,6 +75,34 @@ const GhostScrambleApp = () => {
     setIsReflectionMode(false);
     
     alert('Session saved successfully!');
+  };
+
+  const handleLoadSession = (session) => {
+    setEntries(session.entries);
+    setReflection(session.reflection);
+    setSessionTitle(session.title + ' (copy)');
+    setCurrentPrompt(0);
+    setIsReflectionMode(false);
+  };
+
+  const handleNewSession = () => {
+    if (Object.keys(entries).length > 0 || reflection.trim() || sessionTitle.trim()) {
+      if (!window.confirm('Start a new session? Any unsaved work will be lost.')) {
+        return;
+      }
+    }
+    
+    setEntries({});
+    setReflection('');
+    setSessionTitle('');
+    setCurrentPrompt(0);
+    setIsReflectionMode(false);
+  };
+
+  const handleDeleteSession = (sessionId) => {
+    if (window.confirm('Are you sure you want to delete this session?')) {
+      setSavedSessions(prev => prev.filter(session => session.id !== sessionId));
+    }
   };
 
   const handleExport = () => {
@@ -213,6 +261,14 @@ const GhostScrambleApp = () => {
               
               <div className="session-actions">
                 <button
+                  onClick={handleNewSession}
+                  className="action-btn secondary"
+                >
+                  <Plus size={16} />
+                  New Session
+                </button>
+                
+                <button
                   onClick={handleSaveSession}
                   className="action-btn primary"
                 >
@@ -243,6 +299,24 @@ const GhostScrambleApp = () => {
                       <div className="session-item-title">{session.title}</div>
                       <div className="session-item-meta">{session.date}</div>
                       <div className="session-item-meta">{session.wordCount} words</div>
+                      <div className="session-actions" style={{marginTop: '8px', display: 'flex', gap: '4px'}}>
+                        <button 
+                          onClick={() => handleLoadSession(session)}
+                          className="action-btn primary"
+                          style={{fontSize: '0.75rem', padding: '4px 8px'}}
+                        >
+                          <FileText size={12} />
+                          Load
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteSession(session.id)}
+                          className="action-btn secondary"
+                          style={{fontSize: '0.75rem', padding: '4px 8px'}}
+                        >
+                          <Trash2 size={12} />
+                          Delete
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
